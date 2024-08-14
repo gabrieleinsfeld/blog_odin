@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <% if (locals.errorr) { %>
+    <h1><%= title %></h1>
+    <ul>
+      <% errors.forEach(function(error) { %>
+      <li><%= error.msg %></li>
+      <% }); %>
+    </ul>
+    <% } %> <% if (currentUser) { %>
+    <h1>
+      WELCOME BACK <%= currentUser.firstName %> <%= currentUser.lastName %>
+    </h1>
+
+    <form action="/new-message" method="POST">
+      <label for="title"
+        >Message Title: <input type="text" name="title"
+      /></label>
+      <label for="message"
+        >New Message: <input type="text" name="message"
+      /></label>
+
+      <input
+        type="hidden"
+        name="username"
+        value="<%= currentUser.username %>"
+      />
+      <button type="submit">Submit</button>
+    </form>
+    <a href="/log-out">LOG OUT</a>
+    <% } else { %>
+    <a href="/log-in">Log in</a>
+    <a href="/sign-up">Sign up Now!</a>
+    <% } %>
+  </body>
+</html>

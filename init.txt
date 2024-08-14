@@ -1,0 +1,5 @@
+RUN:
+npm init -y
+
+RUN:
+npm install express ejs express-validator

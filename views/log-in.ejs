@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <% if (locals.errors) { %>
+    <h1><%= title %></h1>
+    <ul>
+      <% locals.errors.forEach(function(error) { %>
+      <li><%= error.msg %></li>
+      <% }); %>
+    </ul>
+    <% } %>
+    <form action="/log-in" method="POST">
+      <label for="username"
+        >Username: <input type="text" name="username"
+      /></label>
+      <label for="username"
+        >Password: <input type="text" name="password"
+      /></label>
+      <button type="submit">Log In</button>
+    </form>
+  </body>
+</html>
