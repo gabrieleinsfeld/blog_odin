@@ -14,6 +14,11 @@ userRouter.post("/", async (req, res) => {
   await db.createUser(firstName, lastName, username, password);
 
   const user = await prisma.user.findUnique({ where: { username } });
+  await prisma.normal.create({
+    data: {
+      userId: user.id,
+    },
+  });
   res.json({ user: user });
 });
 

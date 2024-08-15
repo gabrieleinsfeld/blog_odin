@@ -6,6 +6,7 @@ const { ExtractJwt, Strategy: JwtStrategy } = require("passport-jwt");
 const jwt = require("jsonwebtoken");
 const { PrismaSessionStore } = require("@quixo3/prisma-session-store");
 const prisma = require("./db/prisma");
+const db = require("./db/queries");
 const app = express();
 // SESSION CONFIGURATION
 app.use(express.json());
@@ -37,6 +38,16 @@ passport.use(
       try {
         const user = await prisma.user.findUnique({
           where: { id: jwtPayload.userId },
+          include: {
+            author: {
+              include: {
+                posts: true,
+              },
+            },
+            normal: true,
+            likes: true,
+            comments: true,
+          },
         });
         if (user) {
           return done(null, user);
@@ -54,7 +65,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // ROUTES BEGIN
-const postRouter = require("./routes/postsRouter");
+const postRouter = require("./routes/postRouter");
 const userRouter = require("./routes/userRouter");
 
 app.use((req, res, next) => {
@@ -65,7 +76,7 @@ app.get("/", async (req, res) => {
   res.json({ message: "Hi" });
 });
 
-app.post("/login", async (req, res) => {
+app.post("/log-in", async (req, res) => {
   const { username, password } = req.body;
 
   const user = await prisma.user.findUnique({ where: { username } });
@@ -83,14 +94,6 @@ app.post("/login", async (req, res) => {
   res.json({ token });
 });
 
-app.get(
-  "/protected",
-  passport.authenticate("jwt", { session: false }),
-  (req, res) => {
-    res.json({ message: "This is a protected route", user: req.user });
-  }
-);
-
 app.get("/log-out", (req, res, next) => {
   req.logout(function (err) {
     if (err) {
@@ -100,7 +103,20 @@ app.get("/log-out", (req, res, next) => {
   });
 });
 
+app.use("/post", passport.authenticate("jwt", { session: false }), postRouter);
 app.use("/user", passport.authenticate("jwt", { session: false }), userRouter);
+app.post("/sign-up", async (req, res) => {
+  const { firstName, lastName, username, password } = req.body;
+  await db.createUser(firstName, lastName, username, password);
+
+  const user = await prisma.user.findUnique({ where: { username } });
+  await prisma.normal.create({
+    data: {
+      userId: user.id,
+    },
+  });
+  res.json({ user: user });
+});
 
 const PORT = process.env.PORT || 3000;
 
