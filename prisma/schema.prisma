@@ -16,21 +16,65 @@ datasource db {
 model Session {
   id        String   @id
   sid       String   @unique
-  data      String    
+  data      String   
   expiresAt   DateTime
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
+  id        String   @id @default(uuid()) 
+  firstName String   
+  lastName  String  
+  username  String   @unique 
   password  String
-  firstName String
-  lastName  String
-  folders   Folder[]
+  userType  String   @default("normal")
+  author    Author?  @relation("UserAuthor")
+  normal    Normal?  @relation("UserNormal")
+  comments  Comment[]
+  likes     Like[]
 }
 
-model Folder {
-  id       String @id @default(uuid())
-  author   User   @relation(fields: [authorId], references: [id])
-  authorId String 
+model Author {
+  id        String   @id @default(uuid()) 
+  userId    String   @unique
+  user      User     @relation("UserAuthor", fields: [userId], references: [id])
+  posts     Post[]
+}
+
+model Normal {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation("UserNormal", fields: [userId], references: [id])
+}
+
+model Post {
+  id        String   @id @default(uuid()) 
+  createdAt DateTime @default(now())
+  title     String   
+  content   String   
+  authorId  String
+  author    Author   @relation(fields: [authorId], references: [id])
+  published Boolean  @default(true)
+  comments  Comment[]
+  likes     Like[]
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now()) 
+  message   String   
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  likes     Like[]
+}
+
+model Like {
+  id        String   @id @default(uuid()) 
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  postId    String?  
+  post      Post?    @relation(fields: [postId], references: [id])
+  commentId String?  
+  comment   Comment? @relation(fields: [commentId], references: [id])
 }
