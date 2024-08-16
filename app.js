@@ -65,6 +65,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // ROUTES BEGIN
+const commentRouter = require("./routes/commentsRouter");
+const likeRouter = require("./routes/likeRouter");
 const postRouter = require("./routes/postRouter");
 const userRouter = require("./routes/userRouter");
 
@@ -102,7 +104,13 @@ app.get("/log-out", (req, res, next) => {
     res.redirect("/"); // Redirect to the homepage or login page after logout
   });
 });
+app.use(
+  "/comment",
+  passport.authenticate("jwt", { session: false }),
+  commentRouter
+);
 
+app.use("/like", likeRouter);
 app.use("/post", passport.authenticate("jwt", { session: false }), postRouter);
 app.use("/user", passport.authenticate("jwt", { session: false }), userRouter);
 app.post("/sign-up", async (req, res) => {
