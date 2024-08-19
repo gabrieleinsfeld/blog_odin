@@ -18,6 +18,9 @@ userRouter.put("/turn-into-author", async (req, res) => {
       where: { id },
       data: { userType },
     });
+    await prisma.author.create({
+      data: { userId: updatedUser.id },
+    });
     res.json(updatedUser);
   } else {
     res.json({ message: "Not allowed" });

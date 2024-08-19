@@ -17,6 +17,7 @@ function authenticateAuthor(req, res, next) {
 
 postRouter.get("/", async (req, res) => {
   const posts = await db.getPosts();
+
   res.json(posts);
 });
 
