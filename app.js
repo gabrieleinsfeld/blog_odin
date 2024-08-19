@@ -8,6 +8,7 @@ const { PrismaSessionStore } = require("@quixo3/prisma-session-store");
 const prisma = require("./db/prisma");
 const db = require("./db/queries");
 const app = express();
+
 require("dotenv").config();
 // SESSION CONFIGURATION
 app.use(express.json());
@@ -71,7 +72,7 @@ const likeRouter = require("./routes/likeRouter");
 const postRouter = require("./routes/postRouter");
 const userRouter = require("./routes/userRouter");
 const cors = require("cors");
-app.use(cors());
+app.use(cors({ origin: "*" }));
 app.use((req, res, next) => {
   res.locals.currentUser = req.user;
   next();

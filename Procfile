@@ -1,1 +1,1 @@
-web: node app.js
+web: npx prisma migrate deploy && npm start
