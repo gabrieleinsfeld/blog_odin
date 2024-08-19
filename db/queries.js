@@ -48,7 +48,7 @@ async function createUser(firstName, lastName, username, password) {
       if (err) {
         console.log(err);
       } else {
-        await prisma.user.create({
+        const user = await prisma.user.create({
           data: {
             firstName,
             lastName,
@@ -56,6 +56,8 @@ async function createUser(firstName, lastName, username, password) {
             password: hashedPassword,
           },
         });
+        await prisma.normal.create({ data: { userId: user.id } });
+        return user;
       }
     }
   );
@@ -70,22 +72,62 @@ async function deleteUser(username) {
 }
 
 // POST FUNCTIONS
-async function getPosts(authorId) {
+async function getPost(id) {
   try {
-    const posts = await prisma.post.findMany({ include: { likes: true } });
+    const posts = await prisma.post.findMany({
+      where: { id },
+      include: {
+        likes: true,
+        comments: {
+          include: {
+            user: {
+              // You likely want to include the user here for each comment
+              select: {
+                username: true, // Fetch only the username
+              },
+            },
+          },
+        },
+      },
+    });
     return posts;
   } catch (err) {
     console.log(err.message);
     return err;
   }
 }
-async function createPost(title, content, authorId) {
+async function getPosts() {
+  try {
+    const posts = await prisma.post.findMany({
+      include: {
+        likes: true,
+        comments: {
+          include: {
+            user: {
+              // You likely want to include the user here for each comment
+              select: {
+                username: true, // Fetch only the username
+              },
+            },
+          },
+        },
+      },
+    });
+    return posts;
+  } catch (err) {
+    console.log(err.message);
+    return err;
+  }
+}
+async function createPost(title, content, authorId, description, img) {
   try {
     await prisma.post.create({
       data: {
         title,
         content,
         authorId,
+        description,
+        img,
       },
     });
   } catch (err) {
@@ -93,13 +135,15 @@ async function createPost(title, content, authorId) {
   }
 }
 
-async function updatePost(title, content, id) {
+async function updatePost(title, content, id, description, img) {
   try {
     await prisma.post.update({
       where: { id },
       data: {
         title,
         content,
+        description,
+        img,
       },
     });
   } catch (err) {
@@ -197,6 +241,26 @@ async function getLikesOnPost(postId) {
   }
 }
 
+async function getLikesOnPostStatus(userId, postId) {
+  try {
+    const like = await prisma.like.findFirst({
+      where: {
+        postId,
+        userId, // Ensure both postId and userId match
+      },
+    });
+
+    if (like) {
+      return { liked: true, likeId: like.id }; // Return true and the like ID if a like is found
+    } else {
+      return { liked: false, likeId: null }; // Return false and null if no like is found
+    }
+  } catch (err) {
+    console.log(err.message);
+    return false; // Return false in case of an error (optional)
+  }
+}
+
 async function createLikeOnComment(userId, commentId) {
   try {
     await prisma.like.create({
@@ -211,12 +275,13 @@ async function createLikeOnComment(userId, commentId) {
 }
 async function createLikeOnPost(userId, postId) {
   try {
-    await prisma.like.create({
+    const like = await prisma.like.create({
       data: {
         postId,
         userId,
       },
     });
+    return like.id;
   } catch (err) {
     console.log(err.message);
   }
@@ -251,4 +316,6 @@ module.exports = {
   createLikeOnComment,
   createLikeOnPost,
   deleteLike,
+  getLikesOnPostStatus,
+  getPost,
 };

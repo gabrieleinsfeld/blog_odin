@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Post" ALTER COLUMN "description" DROP DEFAULT,
+ALTER COLUMN "img" DROP DEFAULT;

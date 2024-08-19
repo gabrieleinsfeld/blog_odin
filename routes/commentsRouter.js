@@ -33,10 +33,10 @@ commentRouter.put("/", async (req, res) => {
   }
 });
 
-commentRouter.delete("/", async (req, res) => {
+commentRouter.delete("/:id", async (req, res) => {
   try {
-    const { messageId } = req.body;
-    await db.deleteComment(messageId);
+    const id = req.params.id;
+    await db.deleteComment(id);
     res.json({ message: "Comment deleted" });
   } catch (err) {
     res.status(500).json({ message: "", err });

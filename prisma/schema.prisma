@@ -50,11 +50,13 @@ model Post {
   id        String   @id @default(uuid()) 
   createdAt DateTime @default(now())
   title     String   
+  description String 
+  img       String   
   content   String   
   authorId  String
   author    Author   @relation(fields: [authorId], references: [id])
   published Boolean  @default(true)
-  comments  Comment[]
+  comments  Comment[] 
   likes     Like[]
 }
 
@@ -63,7 +65,7 @@ model Comment {
   createdAt DateTime @default(now()) 
   message   String   
   postId    String
-  post      Post     @relation(fields: [postId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   likes     Like[]
@@ -74,7 +76,7 @@ model Like {
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   postId    String?  
-  post      Post?    @relation(fields: [postId], references: [id])
+  post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
   commentId String?  
   comment   Comment? @relation(fields: [commentId], references: [id])
 }

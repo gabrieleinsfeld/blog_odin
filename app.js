@@ -69,7 +69,8 @@ const commentRouter = require("./routes/commentsRouter");
 const likeRouter = require("./routes/likeRouter");
 const postRouter = require("./routes/postRouter");
 const userRouter = require("./routes/userRouter");
-
+const cors = require("cors");
+app.use(cors());
 app.use((req, res, next) => {
   res.locals.currentUser = req.user;
   next();
@@ -93,7 +94,7 @@ app.post("/log-in", async (req, res) => {
   });
 
   // Send the token to the client
-  res.json({ token });
+  res.json({ token, user });
 });
 
 app.get("/log-out", (req, res, next) => {
@@ -111,18 +112,11 @@ app.use(
 );
 
 app.use("/like", likeRouter);
-app.use("/post", passport.authenticate("jwt", { session: false }), postRouter);
+app.use("/post", postRouter);
 app.use("/user", passport.authenticate("jwt", { session: false }), userRouter);
 app.post("/sign-up", async (req, res) => {
   const { firstName, lastName, username, password } = req.body;
-  await db.createUser(firstName, lastName, username, password);
-
-  const user = await prisma.user.findUnique({ where: { username } });
-  await prisma.normal.create({
-    data: {
-      userId: user.id,
-    },
-  });
+  const user = await db.createUser(firstName, lastName, username, password);
   res.json({ user: user });
 });
 
