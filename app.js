@@ -8,6 +8,7 @@ const { PrismaSessionStore } = require("@quixo3/prisma-session-store");
 const prisma = require("./db/prisma");
 const db = require("./db/queries");
 const app = express();
+require("dotenv").config();
 // SESSION CONFIGURATION
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
